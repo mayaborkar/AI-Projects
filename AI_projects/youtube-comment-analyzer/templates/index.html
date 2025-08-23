@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube Comment Analyzer</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>📊 YouTube Comment Analyzer</h1>
+            <p>Transform your YouTube comments into actionable content insights and video ideas</p>
+        </div>
+
+        <!-- Input Section -->
+        <div class="input-section">
+            <form id="analyze-form">
+                <div class="url-input-group">
+                    <input 
+                        type="url" 
+                        id="url-input" 
+                        class="url-input" 
+                        placeholder="Enter YouTube video URL (e.g., https://www.youtube.com/watch?v=...)"
+                        required
+                    >
+                    <button type="submit" id="analyze-btn" class="analyze-btn">
+                        Analyze Comments
+                    </button>
+                </div>
+            </form>
+
+            <!-- Progress Indicator -->
+            <div id="progress-container" class="progress-container">
+                <div class="progress-bar">
+                    <div id="progress-fill" class="progress-fill"></div>
+                </div>
+                <div id="progress-text" class="progress-text">Starting analysis...</div>
+            </div>
+        </div>
+
+        <!-- Results Section -->
+        <div id="results" class="results">
+            <!-- Video Information -->
+            <div class="video-info">
+                <h2 id="video-title" class="video-title">Video Title</h2>
+                <p>Channel: <strong id="channel-name">Channel Name</strong></p>
+                
+                <div class="video-stats">
+                    <div class="stat-item">
+                        <span id="view-count" class="stat-number">0</span>
+                        <span class="stat-label">Views</span>
+                    </div>
+                    <div class="stat-item">
+                        <span id="like-count" class="stat-number">0</span>
+                        <span class="stat-label">Likes</span>
+                    </div>
+                    <div class="stat-item">
+                        <span id="comment-count" class="stat-number">0</span>
+                        <span class="stat-label">Comments</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Analysis Insights -->
+            <div class="analysis-grid">
+                <!-- Frequently Asked Questions -->
+                <div class="analysis-card">
+                    <h3 class="card-title">
+                        <span class="card-icon">❓</span>
+                        Frequently Asked Questions
+                    </h3>
+                    <div id="faqs-list"></div>
+                </div>
+
+                <!-- Pain Points -->
+                <div class="analysis-card">
+                    <h3 class="card-title">
+                        <span class="card-icon">⚠️</span>
+                        Common Pain Points
+                    </h3>
+                    <div id="pain-points-list"></div>
+                </div>
+
+                <!-- Content Requests -->
+                <div class="analysis-card">
+                    <h3 class="card-title">
+                        <span class="card-icon">💡</span>
+                        Content Requests
+                    </h3>
+                    <div id="content-requests-list"></div>
+                </div>
+
+                <!-- Learning Topics -->
+                <div class="analysis-card">
+                    <h3 class="card-title">
+                        <span class="card-icon">📚</span>
+                        Learning Topics
+                    </h3>
+                    <div id="learning-topics-list"></div>
+                </div>
+
+                <!-- Misconceptions -->
+                <div class="analysis-card">
+                    <h3 class="card-title">
+                        <span class="card-icon">🔍</span>
+                        Misconceptions to Address
+                    </h3>
+                    <div id="misconceptions-list"></div>
+                </div>
+
+                <!-- Emotional Sentiment -->
+                <div class="analysis-card">
+                    <h3 class="card-title">
+                        <span class="card-icon">😊</span>
+                        Audience Sentiment
+                    </h3>
+                    <div id="sentiment-chart" class="sentiment-chart"></div>
+                </div>
+            </div>
+
+            <!-- Video Ideas Section -->
+            <div class="video-ideas">
+                <h2 class="card-title">
+                    <span class="card-icon">🎬</span>
+                    Generated Video Ideas
+                </h2>
+                <p style="color: #666; margin-bottom: 25px;">
+                    Based on your comment analysis, here are specific video ideas with high audience interest:
+                </p>
+                <div id="video-ideas-list"></div>
+            </div>
+
+            <!-- Export Section -->
+            <div class="export-section">
+                <button id="export-btn" class="export-btn">
+                    📥 Export Analysis Results
+                </button>
+                <p style="color: #666; margin-top: 15px; font-size: 0.9rem;">
+                    Download your analysis as a JSON file for future reference
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
