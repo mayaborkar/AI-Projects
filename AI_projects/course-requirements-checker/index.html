@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Course Requirements Checker</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Course Requirements Checker</h1>
+            <p>Verify if your planned courses meet all major requirements</p>
+        </header>
+
+        <main>
+            <section class="input-section">
+                <h2>Step 1: Add Requirement Sources</h2>
+                <div class="url-input-container">
+                    <label for="requirements-url">Requirements Website URL:</label>
+                    <div class="url-input-group">
+                        <input type="url" id="requirements-url" placeholder="https://example.edu/major-requirements">
+                        <button type="button" onclick="addRequirementUrl()">Add URL</button>
+                    </div>
+                </div>
+                <div id="url-list" class="url-list"></div>
+            </section>
+
+            <section class="upload-section">
+                <h2>Step 2: Upload Course Plan</h2>
+                <div class="file-upload-container">
+                    <label for="course-plan" class="file-upload-label">
+                        <span>Choose File</span>
+                        <input type="file" id="course-plan" accept=".pdf,.txt,.csv,.docx" onchange="handleFileUpload(event)">
+                    </label>
+                    <div id="file-info" class="file-info"></div>
+                </div>
+            </section>
+
+            <section class="action-section">
+                <button type="button" id="analyze-btn" onclick="analyzeRequirements()" disabled>Analyze Requirements</button>
+            </section>
+
+            <section class="results-section" id="results-section" style="display: none;">
+                <h2>Results</h2>
+                <div id="results-container"></div>
+            </section>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
