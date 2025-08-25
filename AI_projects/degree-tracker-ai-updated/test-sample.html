@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Degree Tracker Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ccc; }
+        .success { background-color: #d4edda; }
+        .error { background-color: #f8d7da; }
+        button { margin: 5px; padding: 10px; }
+    </style>
+</head>
+<body>
+    <h1>Degree Tracker Multi-Major/Minor Test</h1>
+    
+    <div class="test-section">
+        <h2>Test 1: Switch Between Majors</h2>
+        <button onclick="testMajorSwitch('northeastern-cs')">Northeastern CS</button>
+        <button onclick="testMajorSwitch('northeastern-data-science')">Northeastern DS</button>
+        <button onclick="testMajorSwitch('mit-eecs')">MIT EECS</button>
+        <div id="major-test-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 2: Add Multiple Minors</h2>
+        <button onclick="testAddMinor('mathematics')">Add Math Minor</button>
+        <button onclick="testAddMinor('business')">Add Business Minor</button>
+        <button onclick="testAddMinor('psychology')">Add Psychology Minor</button>
+        <button onclick="testAddMinor('data-science')">Add DS Minor (should fail for CS)</button>
+        <button onclick="testRemoveMinor('mathematics')">Remove Math Minor</button>
+        <div id="minor-test-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 3: Requirements Validation</h2>
+        <button onclick="testRequirements()">Check Requirements</button>
+        <div id="requirements-test-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 4: AI Responses</h2>
+        <button onclick="testAIResponse('What courses do I still need?')">Courses Needed</button>
+        <button onclick="testAIResponse('Tell me about my minors')">Minor Analysis</button>
+        <button onclick="testAIResponse('Can I graduate on time?')">Graduation Timeline</button>
+        <div id="ai-test-result"></div>
+    </div>
+
+    <script src="data.js"></script>
+    <script src="app.js"></script>
+    <script>
+        let testApp;
+        
+        // Initialize test app
+        document.addEventListener('DOMContentLoaded', () => {
+            // Create hidden container for the app
+            const hiddenContainer = document.createElement('div');
+            hiddenContainer.style.display = 'none';
+            hiddenContainer.innerHTML = `
+                <div id="major-select"></div>
+                <div id="active-minors"></div>
+                <div id="minor-requirements"></div>
+                <div id="chat-messages"></div>
+                <select id="minor-select">
+                    <option value="">Select minor</option>
+                    <option value="mathematics">Math</option>
+                    <option value="business">Business</option>
+                    <option value="psychology">Psychology</option>
+                    <option value="data-science">DS</option>
+                </select>
+                <button id="add-minor-btn">Add</button>
+            `;
+            document.body.appendChild(hiddenContainer);
+            
+            testApp = new DegreeTracker();
+        });
+
+        function testMajorSwitch(majorKey) {
+            const resultDiv = document.getElementById('major-test-result');
+            try {
+                const oldMajor = testApp.currentMajor;
+                testApp.currentMajor = majorKey;
+                testApp.requirements = testApp.availablePrograms[majorKey];
+                
+                const program = testApp.requirements;
+                resultDiv.innerHTML = `
+                    <div class="success">
+                        <strong>✅ Major Switch Test Passed</strong><br>
+                        Switched from ${testApp.availablePrograms[oldMajor]?.program} to ${program.program}<br>
+                        Credits required: ${program.totalCredits}<br>
+                        University: ${program.university}
+                    </div>
+                `;
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="error">
+                        <strong>❌ Major Switch Test Failed</strong><br>
+                        Error: ${error.message}
+                    </div>
+                `;
+            }
+        }
+
+        function testAddMinor(minorKey) {
+            const resultDiv = document.getElementById('minor-test-result');
+            try {
+                const minor = testApp.availableMinors[minorKey];
+                
+                // Test eligibility
+                if (minor.eligibility && testApp.isKhouryMajor()) {
+                    resultDiv.innerHTML = `
+                        <div class="success">
+                            <strong>✅ Minor Eligibility Test Passed</strong><br>
+                            Correctly blocked ${minor.name} for Khoury major: ${minor.eligibility}
+                        </div>
+                    `;
+                    return;
+                }
+                
+                // Add minor
+                if (!testApp.selectedMinors.includes(minorKey)) {
+                    testApp.selectedMinors.push(minorKey);
+                    const progress = testApp.calculateMinorProgress(minorKey);
+                    
+                    resultDiv.innerHTML = `
+                        <div class="success">
+                            <strong>✅ Minor Addition Test Passed</strong><br>
+                            Added ${minor.name}<br>
+                            Progress: ${progress.fulfilled}/${progress.total} (${progress.percentage}%)<br>
+                            Total Credits: ${minor.totalCredits}<br>
+                            Active Minors: ${testApp.selectedMinors.length}
+                        </div>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <div class="success">
+                            <strong>✅ Duplicate Prevention Test Passed</strong><br>
+                            ${minor.name} already added, correctly prevented duplicate
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="error">
+                        <strong>❌ Minor Test Failed</strong><br>
+                        Error: ${error.message}
+                    </div>
+                `;
+            }
+        }
+
+        function testRemoveMinor(minorKey) {
+            const resultDiv = document.getElementById('minor-test-result');
+            try {
+                const minor = testApp.availableMinors[minorKey];
+                const wasPresent = testApp.selectedMinors.includes(minorKey);
+                
+                testApp.selectedMinors = testApp.selectedMinors.filter(m => m !== minorKey);
+                
+                resultDiv.innerHTML = `
+                    <div class="success">
+                        <strong>✅ Minor Removal Test Passed</strong><br>
+                        ${wasPresent ? 'Removed' : 'Was not present:'} ${minor.name}<br>
+                        Remaining Minors: ${testApp.selectedMinors.length}
+                    </div>
+                `;
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="error">
+                        <strong>❌ Minor Removal Test Failed</strong><br>
+                        Error: ${error.message}
+                    </div>
+                `;
+            }
+        }
+
+        function testRequirements() {
+            const resultDiv = document.getElementById('requirements-test-result');
+            try {
+                const progress = testApp.calculateMajorProgress();
+                const allRequirements = [
+                    ...testApp.requirements.coreRequirements,
+                    ...testApp.requirements.supportingCourses,
+                    ...testApp.requirements.writingRequirements,
+                    ...(testApp.requirements.additionalRequirements || [])
+                ];
+                
+                resultDiv.innerHTML = `
+                    <div class="success">
+                        <strong>✅ Requirements Test Passed</strong><br>
+                        Program: ${testApp.requirements.program}<br>
+                        Total Requirements: ${allRequirements.length}<br>
+                        Major Progress: ${progress.fulfilled}/${progress.total} (${progress.percentage}%)<br>
+                        Core Requirements: ${testApp.requirements.coreRequirements.length}<br>
+                        Supporting Courses: ${testApp.requirements.supportingCourses.length}<br>
+                        Writing Requirements: ${testApp.requirements.writingRequirements.length}
+                    </div>
+                `;
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="error">
+                        <strong>❌ Requirements Test Failed</strong><br>
+                        Error: ${error.message}
+                    </div>
+                `;
+            }
+        }
+
+        function testAIResponse(query) {
+            const resultDiv = document.getElementById('ai-test-result');
+            try {
+                const response = testApp.generateAIResponse(query);
+                
+                resultDiv.innerHTML = `
+                    <div class="success">
+                        <strong>✅ AI Response Test Passed</strong><br>
+                        <strong>Query:</strong> ${query}<br>
+                        <strong>Response:</strong><br>
+                        <pre style="white-space: pre-wrap; background: #f8f9fa; padding: 10px; border-radius: 5px;">${response}</pre>
+                    </div>
+                `;
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div class="error">
+                        <strong>❌ AI Response Test Failed</strong><br>
+                        Error: ${error.message}
+                    </div>
+                `;
+            }
+        }
+    </script>
+</body>
+</html>

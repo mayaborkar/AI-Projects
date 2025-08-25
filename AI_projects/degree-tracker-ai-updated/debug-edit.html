@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug Edit Modal</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        .test { margin: 15px 0; padding: 10px; border: 1px solid #ddd; border-radius: 5px; }
+        .pass { background: #e8f5e9; border-color: #4caf50; }
+        .fail { background: #ffebee; border-color: #f44336; }
+    </style>
+</head>
+<body>
+    <h1>Debug Edit Modal Issue</h1>
+    <div id="test-results"></div>
+
+    <script src="data.js"></script>
+    <script src="app.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const resultsDiv = document.getElementById('test-results');
+            const tracker = new DegreeTracker();
+            
+            console.log('=== DEBUG EDIT MODAL ===');
+            console.log('DegreeTracker instance:', tracker);
+            console.log('openEditModal function exists:', typeof tracker.openEditModal);
+            console.log('Completed courses:', tracker.studentData.completedCourses);
+            console.log('First completed course:', tracker.studentData.completedCourses[0]);
+            
+            // Test if we can call openEditModal
+            try {
+                console.log('Attempting to call openEditModal(0, "completed")...');
+                tracker.openEditModal(0, 'completed');
+                console.log('openEditModal called successfully');
+            } catch (error) {
+                console.error('Error calling openEditModal:', error);
+            }
+            
+            // Check if edit modal elements exist
+            console.log('Edit modal element exists:', !!document.getElementById('edit-course-modal'));
+            console.log('Edit form exists:', !!document.getElementById('edit-course-form'));
+            console.log('Edit course index input exists:', !!document.getElementById('edit-course-index'));
+            
+            resultsDiv.innerHTML = '<p>Check browser console for debug information</p>';
+        });
+    </script>
+</body>
+</html>

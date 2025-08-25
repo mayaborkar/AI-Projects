@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debug GPA & Requirements</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 1200px; margin: 0 auto; padding: 20px; }
+        .debug-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .course-row { display: grid; grid-template-columns: 120px 80px 60px 80px 100px; gap: 10px; padding: 5px; border-bottom: 1px solid #eee; }
+        .course-header { font-weight: bold; background: #f5f5f5; }
+        .error { color: red; background: #ffebee; padding: 10px; border-radius: 5px; }
+        .success { color: green; background: #e8f5e9; padding: 10px; border-radius: 5px; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 5px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>GPA & Requirements Debug</h1>
+    
+    <div class="debug-section">
+        <h2>📊 GPA Calculation Debug</h2>
+        <div id="gpa-debug"></div>
+    </div>
+    
+    <div class="debug-section">
+        <h2>📚 Course Data Analysis</h2>
+        <div class="course-row course-header">
+            <div>Course Code</div>
+            <div>Grade</div>
+            <div>Credits</div>
+            <div>Points</div>
+            <div>Weighted</div>
+        </div>
+        <div id="course-analysis"></div>
+    </div>
+    
+    <div class="debug-section">
+        <h2>🎯 Requirements Matching Debug</h2>
+        <div id="requirements-debug"></div>
+    </div>
+
+    <script src="data.js"></script>
+    <script>
+        // Northeastern grading scale
+        const gradeScale = {
+            'A': 4.000, 'A-': 3.667, 'B+': 3.333, 'B': 3.000, 'B-': 2.667,
+            'C+': 2.333, 'C': 2.000, 'C-': 1.667, 'D+': 1.333, 'D': 1.000, 'D-': 0.667, 'F': 0.000
+        };
+        const nonGpaGrades = ['I', 'IP', 'S', 'U', 'X', 'P', 'W', 'AU'];
+
+        function debugGPA() {
+            const completedCourses = STUDENT_DATA.completedCourses.filter(course => course.status === 'completed');
+            const gradedCourses = completedCourses.filter(course => 
+                course.grade && !nonGpaGrades.includes(course.grade) && gradeScale[course.grade] !== undefined
+            );
+
+            console.log('=== GPA DEBUG ===');
+            console.log('Total completed courses:', completedCourses.length);
+            console.log('Graded courses for GPA:', gradedCourses.length);
+
+            let totalWeightedPoints = 0;
+            let totalCredits = 0;
+            let courseAnalysisHTML = '';
+
+            // Analyze each completed course
+            completedCourses.forEach(course => {
+                const gradePoints = gradeScale[course.grade];
+                const isGpaEligible = course.grade && !nonGpaGrades.includes(course.grade) && gradePoints !== undefined;
+                
+                let status = '';
+                let weightedPoints = 0;
+                
+                if (!course.grade) {
+                    status = 'No Grade';
+                } else if (nonGpaGrades.includes(course.grade)) {
+                    status = 'Non-GPA Grade';
+                } else if (gradePoints === undefined) {
+                    status = 'Invalid Grade';
+                } else {
+                    status = 'Counts for GPA';
+                    weightedPoints = gradePoints * course.credits;
+                    totalWeightedPoints += weightedPoints;
+                    totalCredits += course.credits;
+                }
+
+                courseAnalysisHTML += `
+                    <div class="course-row" style="${isGpaEligible ? 'background: #e8f5e9' : 'background: #ffebee'}">
+                        <div>${course.code}</div>
+                        <div>${course.grade || 'N/A'}</div>
+                        <div>${course.credits}</div>
+                        <div>${gradePoints ? gradePoints.toFixed(3) : 'N/A'}</div>
+                        <div>${weightedPoints ? weightedPoints.toFixed(3) : status}</div>
+                    </div>
+                `;
+            });
+
+            const calculatedGPA = totalCredits > 0 ? totalWeightedPoints / totalCredits : 0;
+
+            document.getElementById('course-analysis').innerHTML = courseAnalysisHTML;
+            document.getElementById('gpa-debug').innerHTML = `
+                <div class="success">
+                    <strong>GPA Calculation Results:</strong><br>
+                    Total Quality Points: ${totalWeightedPoints.toFixed(3)}<br>
+                    Total Credits: ${totalCredits}<br>
+                    <strong>Calculated GPA: ${calculatedGPA.toFixed(3)}</strong><br>
+                    Courses Counted: ${gradedCourses.length}
+                </div>
+                <br>
+                <strong>Expected vs Actual:</strong><br>
+                Expected GPA: 3.943<br>
+                Current GPA: ${calculatedGPA.toFixed(3)}<br>
+                Difference: ${(calculatedGPA - 3.943).toFixed(3)}<br>
+                <br>
+                ${calculatedGPA < 3.943 ? 
+                    '<div class="error">GPA is lower than expected. Check for incorrect grades above.</div>' : 
+                    '<div class="success">GPA matches expected value!</div>'
+                }
+            `;
+
+            return { gpa: calculatedGPA, totalWeightedPoints, totalCredits, gradedCourses };
+        }
+
+        function debugRequirements() {
+            console.log('=== REQUIREMENTS DEBUG ===');
+            
+            let debugHTML = '';
+            let totalFulfilled = 0;
+            let totalMissing = 0;
+            let totalPlanned = 0;
+
+            // Check each requirement category
+            Object.entries(DEGREE_REQUIREMENTS).forEach(([categoryName, requirements]) => {
+                if (Array.isArray(requirements)) {
+                    debugHTML += `<h3>${categoryName} (${requirements.length} requirements)</h3>`;
+                    
+                    requirements.forEach(req => {
+                        let status = 'missing';
+                        if (req.fulfilled) {
+                            status = 'fulfilled';
+                            totalFulfilled++;
+                        } else if (req.planned) {
+                            status = 'planned';
+                            totalPlanned++;
+                        } else {
+                            totalMissing++;
+                        }
+
+                        const statusColor = status === 'fulfilled' ? '#e8f5e9' : 
+                                          status === 'planned' ? '#fff3e0' : '#ffebee';
+
+                        debugHTML += `
+                            <div style="padding: 8px; margin: 5px 0; background: ${statusColor}; border-radius: 3px;">
+                                <strong>${req.name}</strong> - ${status}<br>
+                                <small>Matching courses: ${req.matchingCourses ? req.matchingCourses.join(', ') : 'None'}</small><br>
+                                <small>Credits: ${req.credits}</small>
+                            </div>
+                        `;
+                    });
+                    debugHTML += '<br>';
+                }
+            });
+
+            debugHTML = `
+                <div class="success">
+                    <strong>Requirements Summary:</strong><br>
+                    Fulfilled: ${totalFulfilled}<br>
+                    Planned: ${totalPlanned}<br>
+                    Missing: ${totalMissing}
+                </div>
+                <br>
+                ${debugHTML}
+            `;
+
+            document.getElementById('requirements-debug').innerHTML = debugHTML;
+
+            return { totalFulfilled, totalPlanned, totalMissing };
+        }
+
+        // Run debug functions
+        window.onload = function() {
+            const gpaResult = debugGPA();
+            const reqResult = debugRequirements();
+            
+            console.log('GPA Result:', gpaResult);
+            console.log('Requirements Result:', reqResult);
+            
+            // Also test what grades would give us 3.943
+            if (Math.abs(gpaResult.gpa - 3.943) > 0.01) {
+                console.log('=== FINDING CORRECT GRADES ===');
+                // Calculate what total points we need
+                const neededPoints = 3.943 * gpaResult.totalCredits;
+                const currentPoints = gpaResult.totalWeightedPoints;
+                const difference = neededPoints - currentPoints;
+                console.log(`Need ${difference.toFixed(3)} more quality points to reach 3.943 GPA`);
+            }
+        };
+    </script>
+</body>
+</html>

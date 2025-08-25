@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GPA Calculator Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        .test-result { padding: 10px; margin: 10px 0; border-radius: 5px; }
+        .pass { background-color: #d4edda; border: 1px solid #c3e6cb; color: #155724; }
+        .fail { background-color: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; }
+        pre { background: #f8f9fa; padding: 15px; border-radius: 5px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>GPA Calculator Test</h1>
+    <div id="test-results"></div>
+    
+    <h2>Course Data Sample</h2>
+    <pre id="course-data"></pre>
+    
+    <h2>GPA Calculation Details</h2>
+    <pre id="gpa-details"></pre>
+
+    <script src="data.js"></script>
+    <script>
+        // Mock the DegreeTracker GPA methods for testing
+        class GPACalculator {
+            getGradePoints(grade) {
+                const gradeScale = {
+                    'A': 4.000,
+                    'A-': 3.667,
+                    'B+': 3.333,
+                    'B': 3.000,
+                    'B-': 2.667,
+                    'C+': 2.333,
+                    'C': 2.000,
+                    'C-': 1.667,
+                    'D+': 1.333,
+                    'D': 1.000,
+                    'D-': 0.667,
+                    'F': 0.000
+                };
+                
+                const nonGpaGrades = ['I', 'IP', 'S', 'U', 'X', 'P', 'W', 'AU'];
+                
+                if (nonGpaGrades.includes(grade)) {
+                    return null;
+                }
+                
+                return gradeScale[grade] || null;
+            }
+
+            calculateGPA(courses) {
+                let totalWeightedPoints = 0;
+                let totalCredits = 0;
+                
+                const gradedCourses = courses.filter(course => 
+                    course.grade && course.status === 'completed'
+                );
+                
+                console.log('Graded courses found:', gradedCourses.length);
+                
+                for (const course of gradedCourses) {
+                    const gradePoints = this.getGradePoints(course.grade);
+                    console.log(`${course.code}: ${course.grade} = ${gradePoints} points × ${course.credits} credits`);
+                    
+                    if (gradePoints !== null) {
+                        const weightedPoints = gradePoints * course.credits;
+                        totalWeightedPoints += weightedPoints;
+                        totalCredits += course.credits;
+                        console.log(`  Weighted points: ${weightedPoints}, Running total: ${totalWeightedPoints}`);
+                    }
+                }
+                
+                console.log(`Final: ${totalWeightedPoints} points ÷ ${totalCredits} credits = ${totalWeightedPoints / totalCredits}`);
+                return totalCredits > 0 ? totalWeightedPoints / totalCredits : null;
+            }
+        }
+
+        function runTests() {
+            const calculator = new GPACalculator();
+            const results = [];
+            
+            // Test 1: Individual grade point calculation
+            const testGrades = ['A', 'A-', 'B+', 'B', 'B-', 'P', 'IP'];
+            const expectedPoints = [4.000, 3.667, 3.333, 3.000, 2.667, null, null];
+            
+            testGrades.forEach((grade, i) => {
+                const result = calculator.getGradePoints(grade);
+                const expected = expectedPoints[i];
+                const passed = result === expected;
+                results.push({
+                    test: `Grade ${grade} = ${expected} points`,
+                    result: result,
+                    expected: expected,
+                    passed: passed
+                });
+            });
+            
+            // Test 2: Sample GPA calculation
+            const sampleCourses = [
+                { code: 'CS 2500', grade: 'A', credits: 4, status: 'completed' },
+                { code: 'MATH 1341', grade: 'A-', credits: 4, status: 'completed' },
+                { code: 'CS 1800', grade: 'B+', credits: 4, status: 'completed' },
+                { code: 'ENGW 1111', grade: 'B', credits: 4, status: 'completed' }
+            ];
+            
+            const calculatedGPA = calculator.calculateGPA(sampleCourses);
+            // Expected: (4.0×4 + 3.667×4 + 3.333×4 + 3.0×4) ÷ 16 = 56 ÷ 16 = 3.5
+            const expectedGPA = 3.5;
+            
+            results.push({
+                test: 'Sample GPA calculation',
+                result: calculatedGPA ? calculatedGPA.toFixed(3) : 'null',
+                expected: expectedGPA.toFixed(3),
+                passed: Math.abs(calculatedGPA - expectedGPA) < 0.001
+            });
+            
+            // Test 3: Real data GPA calculation
+            if (typeof STUDENT_DATA !== 'undefined') {
+                const realGPA = calculator.calculateGPA(STUDENT_DATA.completedCourses);
+                results.push({
+                    test: 'Real student data GPA',
+                    result: realGPA ? realGPA.toFixed(3) : 'null',
+                    expected: 'calculated from actual grades',
+                    passed: realGPA !== null
+                });
+            }
+            
+            return results;
+        }
+
+        // Run tests and display results
+        const testResults = runTests();
+        const resultsDiv = document.getElementById('test-results');
+        
+        testResults.forEach(test => {
+            const div = document.createElement('div');
+            div.className = `test-result ${test.passed ? 'pass' : 'fail'}`;
+            div.innerHTML = `
+                <strong>${test.test}</strong><br>
+                Result: ${test.result}<br>
+                Expected: ${test.expected}<br>
+                Status: ${test.passed ? '✅ PASS' : '❌ FAIL'}
+            `;
+            resultsDiv.appendChild(div);
+        });
+
+        // Display course data sample
+        if (typeof STUDENT_DATA !== 'undefined') {
+            const courseData = STUDENT_DATA.completedCourses.slice(0, 10).map(course => ({
+                code: course.code,
+                grade: course.grade,
+                credits: course.credits,
+                status: course.status
+            }));
+            document.getElementById('course-data').textContent = JSON.stringify(courseData, null, 2);
+            
+            // Calculate and display GPA details
+            const calculator = new GPACalculator();
+            const gpa = calculator.calculateGPA(STUDENT_DATA.completedCourses);
+            const gpaDetails = {
+                calculatedGPA: gpa ? gpa.toFixed(3) : 'N/A',
+                totalCourses: STUDENT_DATA.completedCourses.length,
+                gradedCourses: STUDENT_DATA.completedCourses.filter(c => c.grade && calculator.getGradePoints(c.grade) !== null).length,
+                passFailCourses: STUDENT_DATA.completedCourses.filter(c => c.grade === 'P').length
+            };
+            document.getElementById('gpa-details').textContent = JSON.stringify(gpaDetails, null, 2);
+        }
+    </script>
+</body>
+</html>

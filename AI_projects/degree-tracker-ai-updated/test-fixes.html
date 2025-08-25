@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test GPA & Requirements Fixes</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        .test { margin: 15px 0; padding: 10px; border: 1px solid #ddd; border-radius: 5px; }
+        .pass { background: #e8f5e9; border-color: #4caf50; }
+        .fail { background: #ffebee; border-color: #f44336; }
+        .warning { background: #fff3e0; border-color: #ff9800; }
+    </style>
+</head>
+<body>
+    <h1>Test GPA & Requirements Fixes</h1>
+    <div id="test-results"></div>
+
+    <script src="data.js"></script>
+    <script src="app.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const resultsDiv = document.getElementById('test-results');
+            const tracker = new DegreeTracker();
+            
+            let results = [];
+            
+            // Test 1: GPA Calculation
+            const calculatedGPA = tracker.calculateCurrentGPA();
+            const gpaTest = {
+                name: "GPA Calculation Test",
+                expected: "~3.943",
+                actual: calculatedGPA ? calculatedGPA.toFixed(3) : "null",
+                passed: calculatedGPA && Math.abs(calculatedGPA - 3.943) < 0.1,
+                details: `Expected around 3.943, got ${calculatedGPA ? calculatedGPA.toFixed(3) : 'null'}`
+            };
+            results.push(gpaTest);
+            
+            // Test 2: Completed Credits
+            const creditTest = {
+                name: "Completed Credits Calculation",
+                expected: "> 0",
+                actual: tracker.studentData.completedCredits,
+                passed: tracker.studentData.completedCredits > 0,
+                details: `Should be calculated from actual completed courses: ${tracker.studentData.completedCredits} credits`
+            };
+            results.push(creditTest);
+            
+            // Test 3: Requirements Fulfillment
+            let totalFulfilled = 0;
+            let totalMissing = 0;
+            let totalPlanned = 0;
+            
+            Object.values(tracker.requirements).forEach(category => {
+                if (Array.isArray(category)) {
+                    category.forEach(req => {
+                        if (req.fulfilled) totalFulfilled++;
+                        else if (req.planned) totalPlanned++;
+                        else totalMissing++;
+                    });
+                }
+            });
+            
+            const reqTest = {
+                name: "Requirements Logic Test",
+                expected: "Should have missing requirements",
+                actual: `${totalFulfilled} fulfilled, ${totalPlanned} planned, ${totalMissing} missing`,
+                passed: totalMissing > 0,
+                details: "A CS student should have some missing requirements for graduation"
+            };
+            results.push(reqTest);
+            
+            // Test 4: Major Progress
+            const majorProgress = tracker.calculateMajorProgress();
+            const majorTest = {
+                name: "Major Progress Test",
+                expected: "< 100%",
+                actual: `${majorProgress.percentage}%`,
+                passed: majorProgress.percentage < 100,
+                details: `Major should not be 100% complete: ${majorProgress.completed}/${majorProgress.total}`
+            };
+            results.push(majorTest);
+            
+            // Test 5: Minor Progress
+            const mathMinorProgress = tracker.calculateMinorProgress('mathematics');
+            const dsMinorProgress = tracker.calculateMinorProgress('dataScience');
+            const minorTest = {
+                name: "Minor Progress Test",
+                expected: "Both < 100%",
+                actual: `Math: ${mathMinorProgress.percentage}%, DS: ${dsMinorProgress.percentage}%`,
+                passed: mathMinorProgress.percentage < 100 && dsMinorProgress.percentage < 100,
+                details: "Both minors should have missing requirements"
+            };
+            results.push(minorTest);
+            
+            // Display results
+            results.forEach(test => {
+                const testDiv = document.createElement('div');
+                testDiv.className = `test ${test.passed ? 'pass' : 'fail'}`;
+                testDiv.innerHTML = `
+                    <h3>${test.name} ${test.passed ? '✅' : '❌'}</h3>
+                    <p><strong>Expected:</strong> ${test.expected}</p>
+                    <p><strong>Actual:</strong> ${test.actual}</p>
+                    <p><strong>Details:</strong> ${test.details}</p>
+                `;
+                resultsDiv.appendChild(testDiv);
+            });
+            
+            // Overall result
+            const passed = results.filter(r => r.passed).length;
+            const total = results.length;
+            const overallDiv = document.createElement('div');
+            overallDiv.className = `test ${passed === total ? 'pass' : (passed > total/2 ? 'warning' : 'fail')}`;
+            overallDiv.innerHTML = `
+                <h2>Overall Results: ${passed}/${total} tests passed</h2>
+                <p>${passed === total ? 'All tests passed! 🎉' : 
+                     passed > total/2 ? 'Most tests passed, but some issues remain' : 
+                     'Multiple issues detected - check the console for details'}</p>
+            `;
+            resultsDiv.insertBefore(overallDiv, resultsDiv.firstChild);
+            
+            // Log detailed info to console
+            console.log('=== DETAILED TEST RESULTS ===');
+            console.log('GPA Details:', tracker.getGPABreakdown());
+            console.log('Completed Courses:', tracker.studentData.completedCourses.length);
+            console.log('Planned Courses:', tracker.studentData.plannedCourses.length);
+            console.log('Requirements Summary:', { totalFulfilled, totalPlanned, totalMissing });
+        });
+    </script>
+</body>
+</html>

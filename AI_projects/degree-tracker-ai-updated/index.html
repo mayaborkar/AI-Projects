@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Maya's Degree Tracker - Northeastern CS</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div id="app" class="app">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-container">
+                <div class="logo">
+                    <div class="logo-icon">
+                        <i class="fas fa-graduation-cap"></i>
+                    </div>
+                    <div class="logo-text">
+                        <h1>Degree Tracker</h1>
+                        <p>Maya Borkar • CS '28</p>
+                    </div>
+                </div>
+                
+                <nav class="nav">
+                    <button class="nav-item active" data-view="overview">
+                        <i class="fas fa-home"></i>
+                        <span>Overview</span>
+                    </button>
+                    <button class="nav-item" data-view="courses">
+                        <i class="fas fa-book-open"></i>
+                        <span>Courses</span>
+                    </button>
+                    <button class="nav-item" data-view="requirements">
+                        <i class="fas fa-clipboard-check"></i>
+                        <span>Requirements</span>
+                    </button>
+                    <button class="nav-item" data-view="planner">
+                        <i class="fas fa-calendar-alt"></i>
+                        <span>Planner</span>
+                    </button>
+                    <button class="nav-item" data-view="chat">
+                        <i class="fas fa-comments"></i>
+                        <span>AI Assistant</span>
+                    </button>
+                </nav>
+                
+                <div class="header-actions">
+                    <button class="btn-icon" id="add-course-btn" title="Add Course">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                    <button class="btn-icon" id="theme-toggle" title="Toggle Theme">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main">
+            <!-- Overview View -->
+            <section class="view active" id="overview-view">
+                <div class="view-header">
+                    <h2>Degree Progress Overview</h2>
+                    <p>Track your journey to Computer Science degree completion</p>
+                </div>
+                
+                <div class="stats-grid">
+                    <div class="stat-card primary">
+                        <div class="stat-content">
+                            <div class="stat-number" id="completed-courses">0</div>
+                            <div class="stat-label">Courses Completed</div>
+                        </div>
+                        <div class="stat-icon">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card success">
+                        <div class="stat-content">
+                            <div class="stat-number" id="total-credits">0</div>
+                            <div class="stat-label">Credits Earned</div>
+                        </div>
+                        <div class="stat-icon">
+                            <i class="fas fa-trophy"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card warning">
+                        <div class="stat-content">
+                            <div class="stat-number" id="gpa-display">N/A</div>
+                            <div class="stat-label">Current GPA</div>
+                        </div>
+                        <div class="stat-icon">
+                            <i class="fas fa-star"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card info">
+                        <div class="stat-content">
+                            <div class="stat-number" id="graduation-date">Spring 2028</div>
+                            <div class="stat-label">Expected Graduation</div>
+                        </div>
+                        <div class="stat-icon">
+                            <i class="fas fa-calendar-check"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="progress-section">
+                    <div class="progress-card">
+                        <div class="progress-header">
+                            <h3>Major Progress</h3>
+                            <span class="progress-percentage" id="major-percentage">0%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="major-progress" style="width: 0%"></div>
+                        </div>
+                        <div class="progress-details">
+                            <span id="major-completed">0</span> of <span id="major-total">0</span> requirements completed
+                        </div>
+                    </div>
+                    
+                    <div class="progress-card">
+                        <div class="progress-header">
+                            <h3>Mathematics Minor</h3>
+                            <span class="progress-percentage" id="math-minor-percentage">0%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="math-minor-progress" style="width: 0%"></div>
+                        </div>
+                        <div class="progress-details">
+                            <span id="math-minor-completed">0</span> of <span id="math-minor-total">6</span> requirements completed
+                        </div>
+                    </div>
+                    
+                    <div class="progress-card">
+                        <div class="progress-header">
+                            <h3>Data Science Minor</h3>
+                            <span class="progress-percentage" id="ds-minor-percentage">0%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="ds-minor-progress" style="width: 0%"></div>
+                        </div>
+                        <div class="progress-details">
+                            <span id="ds-minor-completed">0</span> of <span id="ds-minor-total">6</span> requirements completed
+                        </div>
+                    </div>
+                </div>
+
+                <div class="overview-grid">
+                    <div class="overview-card">
+                        <h3>Recent Activity</h3>
+                        <div class="activity-list" id="recent-activity">
+                            <!-- Activity items will be populated here -->
+                        </div>
+                    </div>
+                    
+                    <div class="overview-card">
+                        <h3>Upcoming Courses</h3>
+                        <div class="upcoming-list" id="upcoming-courses">
+                            <!-- Upcoming courses will be populated here -->
+                        </div>
+                    </div>
+                    
+                    <div class="overview-card">
+                        <h3>Quick Actions</h3>
+                        <div class="quick-actions">
+                            <button class="action-btn" data-action="add-course">
+                                <i class="fas fa-plus"></i>
+                                Add Course
+                            </button>
+                            <button class="action-btn" data-action="plan-semester">
+                                <i class="fas fa-calendar-plus"></i>
+                                Plan Semester
+                            </button>
+                            <button class="action-btn" data-action="view-transcript">
+                                <i class="fas fa-file-alt"></i>
+                                View Transcript
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Courses View -->
+            <section class="view" id="courses-view">
+                <div class="view-header">
+                    <h2>My Courses</h2>
+                    <div class="view-actions">
+                        <button class="btn-primary" id="upload-transcript-btn">
+                            <i class="fas fa-upload"></i>
+                            Upload Transcript
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="courses-filters">
+                    <div class="filter-group">
+                        <label for="semester-filter">Semester</label>
+                        <select id="semester-filter">
+                            <option value="all">All Semesters</option>
+                            <option value="completed">Completed Only</option>
+                            <option value="planned">Planned Only</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label for="subject-filter">Subject</label>
+                        <select id="subject-filter">
+                            <option value="all">All Subjects</option>
+                            <option value="CS">Computer Science</option>
+                            <option value="MATH">Mathematics</option>
+                            <option value="DS">Data Science</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div class="search-group">
+                        <input type="text" id="course-search" placeholder="Search courses...">
+                        <i class="fas fa-search"></i>
+                    </div>
+                </div>
+                
+                <div class="courses-container">
+                    <div class="courses-grid" id="courses-grid">
+                        <!-- Courses will be populated here -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Requirements View -->
+            <section class="view" id="requirements-view">
+                <div class="view-header">
+                    <h2>Degree Requirements</h2>
+                    <div class="requirements-summary">
+                        <div class="summary-item fulfilled">
+                            <span class="summary-number" id="fulfilled-count">0</span>
+                            <span class="summary-label">Fulfilled</span>
+                        </div>
+                        <div class="summary-item missing">
+                            <span class="summary-number" id="missing-count">0</span>
+                            <span class="summary-label">Missing</span>
+                        </div>
+                        <div class="summary-item planned">
+                            <span class="summary-number" id="planned-count">0</span>
+                            <span class="summary-label">Planned</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="requirements-content">
+                    <div class="requirement-category">
+                        <h3 class="category-title">
+                            <i class="fas fa-code"></i>
+                            Core Computer Science
+                        </h3>
+                        <div class="requirement-list" id="cs-core-requirements">
+                            <!-- CS core requirements -->
+                        </div>
+                    </div>
+                    
+                    <div class="requirement-category">
+                        <h3 class="category-title">
+                            <i class="fas fa-calculator"></i>
+                            Mathematics & Science
+                        </h3>
+                        <div class="requirement-list" id="math-science-requirements">
+                            <!-- Math/science requirements -->
+                        </div>
+                    </div>
+                    
+                    <div class="requirement-category">
+                        <h3 class="category-title">
+                            <i class="fas fa-pen"></i>
+                            Writing & Communication
+                        </h3>
+                        <div class="requirement-list" id="writing-requirements">
+                            <!-- Writing requirements -->
+                        </div>
+                    </div>
+                    
+                    <div class="requirement-category">
+                        <h3 class="category-title">
+                            <i class="fas fa-brain"></i>
+                            AI Concentration
+                        </h3>
+                        <div class="requirement-list" id="concentration-requirements">
+                            <!-- Concentration requirements -->
+                        </div>
+                    </div>
+                    
+                    <div class="requirement-category">
+                        <h3 class="category-title">
+                            <i class="fas fa-calculator"></i>
+                            Mathematics Minor
+                        </h3>
+                        <div class="requirement-list" id="math-minor-requirements">
+                            <!-- Math minor requirements -->
+                        </div>
+                    </div>
+                    
+                    <div class="requirement-category">
+                        <h3 class="category-title">
+                            <i class="fas fa-chart-bar"></i>
+                            Data Science Minor
+                        </h3>
+                        <div class="requirement-list" id="ds-minor-requirements">
+                            <!-- Data Science minor requirements -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Planner View -->
+            <section class="view" id="planner-view">
+                <div class="view-header">
+                    <h2>Academic Planner</h2>
+                    <p>Plan your remaining semesters and track graduation timeline</p>
+                </div>
+                
+                <div class="planner-timeline">
+                    <div class="timeline-semester">
+                        <h3>Summer 2026</h3>
+                        <div class="semester-courses" data-semester="Summer 2026">
+                            <!-- Courses for this semester -->
+                        </div>
+                    </div>
+                    
+                    <div class="timeline-semester">
+                        <h3>Fall 2026</h3>
+                        <div class="semester-courses" data-semester="Fall 2026">
+                            <!-- Courses for this semester -->
+                        </div>
+                    </div>
+                    
+                    <div class="timeline-semester">
+                        <h3>Spring 2027</h3>
+                        <div class="semester-courses" data-semester="Spring 2027">
+                            <!-- Courses for this semester -->
+                        </div>
+                    </div>
+                    
+                    <div class="timeline-semester">
+                        <h3>Summer 2027</h3>
+                        <div class="semester-courses" data-semester="Summer 2027">
+                            <!-- Courses for this semester -->
+                        </div>
+                    </div>
+                    
+                    <div class="timeline-semester">
+                        <h3>Spring 2028</h3>
+                        <div class="semester-courses" data-semester="Spring 2028">
+                            <!-- Courses for this semester -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Chat View -->
+            <section class="view" id="chat-view">
+                <div class="chat-container">
+                    <div class="chat-header">
+                        <div class="chat-title">
+                            <h2>AI Academic Assistant</h2>
+                            <p>Get personalized advice about your degree progress</p>
+                        </div>
+                        <button class="btn-secondary" id="clear-chat">
+                            <i class="fas fa-trash"></i>
+                            Clear Chat
+                        </button>
+                    </div>
+                    
+                    <div class="chat-messages" id="chat-messages">
+                        <div class="message ai-message">
+                            <div class="message-avatar">
+                                <i class="fas fa-robot"></i>
+                            </div>
+                            <div class="message-content">
+                                <p>Hi Maya! I'm your AI academic assistant. I can help you with:</p>
+                                <ul>
+                                    <li>📊 Analyzing your degree progress</li>
+                                    <li>📚 Planning future courses</li>
+                                    <li>✅ Checking requirements</li>
+                                    <li>🎓 Graduation timeline</li>
+                                    <li>➕ Adding courses to your plan</li>
+                                </ul>
+                                <p>What would you like to know about your CS degree?</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="chat-input-container">
+                        <div class="chat-suggestions">
+                            <button class="suggestion-chip" data-text="What's my current GPA?">
+                                My GPA
+                            </button>
+                            <button class="suggestion-chip" data-text="How am I doing academically?">
+                                Progress check
+                            </button>
+                            <button class="suggestion-chip" data-text="Tell me about Maya's dual minors">
+                                About minors
+                            </button>
+                            <button class="suggestion-chip" data-text="Can I graduate on time?">
+                                Graduation timeline
+                            </button>
+                            <button class="suggestion-chip" data-text="List my completed courses">
+                                Course list
+                            </button>
+                            <button class="suggestion-chip" data-text="What should I focus on next?">
+                                Next steps
+                            </button>
+                            <button class="suggestion-chip" data-text="Add CS 4000 Advanced Algorithms 4 credits completed">
+                                Add a course
+                            </button>
+                            <button class="suggestion-chip" data-text="Tell me a computer science joke!">
+                                Tell me a joke
+                            </button>
+                        </div>
+                        
+                        <div class="chat-input">
+                            <input type="text" id="chat-input" placeholder="Ask about your degree, courses, or requirements..." />
+                            <button class="chat-send" id="chat-send">
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Modals -->
+    <div class="modal-overlay" id="modal-overlay">
+        <!-- Add Course Modal -->
+        <div class="modal" id="add-course-modal">
+            <div class="modal-header">
+                <h3>Add New Course</h3>
+                <button class="modal-close" data-modal="add-course-modal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="add-course-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="course-code">Course Code</label>
+                            <input type="text" id="course-code" placeholder="e.g., CS 3000" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="course-credits">Credits</label>
+                            <input type="number" id="course-credits" min="1" max="8" value="4" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="course-title">Course Title</label>
+                        <input type="text" id="course-title" placeholder="e.g., Algorithms & Data" required>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="course-status">Status</label>
+                            <select id="course-status" required>
+                                <option value="completed">Completed</option>
+                                <option value="planned">Planned</option>
+                                <option value="in-progress">In Progress</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="course-semester">Semester</label>
+                            <input type="text" id="course-semester" placeholder="e.g., Fall 2025">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="course-grade">Grade (Optional)</label>
+                        <select id="course-grade">
+                            <option value="">Select Grade</option>
+                            <option value="A">A</option>
+                            <option value="A-">A-</option>
+                            <option value="B+">B+</option>
+                            <option value="B">B</option>
+                            <option value="B-">B-</option>
+                            <option value="C+">C+</option>
+                            <option value="C">C</option>
+                            <option value="C-">C-</option>
+                            <option value="D+">D+</option>
+                            <option value="D">D</option>
+                            <option value="F">F</option>
+                            <option value="P">P (Pass)</option>
+                            <option value="IP">IP (In Progress)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="modal-actions">
+                        <button type="button" class="btn-secondary modal-close" data-modal="add-course-modal">
+                            Cancel
+                        </button>
+                        <button type="submit" class="btn-primary">
+                            Add Course
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Upload Transcript Modal -->
+        <div class="modal" id="upload-modal">
+            <div class="modal-header">
+                <h3>Upload Transcript</h3>
+                <button class="modal-close" data-modal="upload-modal">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="upload-area" id="upload-area">
+                    <div class="upload-icon">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                    </div>
+                    <h4>Drop your transcript here</h4>
+                    <p>or click to browse files</p>
+                    <small>Supports PDF, TXT, CSV files</small>
+                    <input type="file" id="file-input" accept=".pdf,.txt,.csv" hidden>
+                </div>
+                <div class="upload-progress" id="upload-progress" style="display: none;">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="upload-progress-fill"></div>
+                    </div>
+                    <p id="upload-status">Uploading...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Course Modal -->
+    <div id="edit-course-modal" class="modal">
+        <div class="modal-overlay" data-modal="edit-course-modal"></div>
+        <div class="modal-container">
+            <div class="modal-header">
+                <h2>Edit Course</h2>
+                <button class="modal-close" data-modal="edit-course-modal">×</button>
+            </div>
+            
+            <form id="edit-course-form">
+                <input type="hidden" id="edit-course-index" name="courseIndex">
+                <input type="hidden" id="edit-course-type" name="courseType">
+                
+                <div class="input-group">
+                    <label for="edit-course-code">Course Code</label>
+                    <input type="text" id="edit-course-code" name="courseCode" required placeholder="e.g., CS 2500">
+                </div>
+                
+                <div class="input-group">
+                    <label for="edit-course-title">Course Title</label>
+                    <input type="text" id="edit-course-title" name="courseTitle" required placeholder="e.g., Fundamentals of CS">
+                </div>
+                
+                <div class="input-row">
+                    <div class="input-group">
+                        <label for="edit-course-credits">Credits</label>
+                        <input type="number" id="edit-course-credits" name="courseCredits" required min="1" max="8" placeholder="4">
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="edit-course-semester">Semester</label>
+                        <input type="text" id="edit-course-semester" name="courseSemester" placeholder="e.g., Fall 2024">
+                    </div>
+                </div>
+                
+                <div class="input-row">
+                    <div class="input-group">
+                        <label for="edit-course-grade">Grade</label>
+                        <select id="edit-course-grade" name="courseGrade">
+                            <option value="">No Grade</option>
+                            <option value="A">A</option>
+                            <option value="A-">A-</option>
+                            <option value="B+">B+</option>
+                            <option value="B">B</option>
+                            <option value="B-">B-</option>
+                            <option value="C+">C+</option>
+                            <option value="C">C</option>
+                            <option value="C-">C-</option>
+                            <option value="D+">D+</option>
+                            <option value="D">D</option>
+                            <option value="F">F</option>
+                            <option value="P">P (Pass)</option>
+                            <option value="IP">IP (In Progress)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="input-group">
+                        <label for="edit-course-status">Status</label>
+                        <select id="edit-course-status" name="courseStatus" required>
+                            <option value="completed">Completed</option>
+                            <option value="planned">Planned</option>
+                            <option value="in-progress">In Progress</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="modal-actions">
+                    <button type="button" class="btn-danger" id="delete-course-btn">Delete Course</button>
+                    <button type="button" class="btn-secondary modal-close" data-modal="edit-course-modal">Cancel</button>
+                    <button type="submit" class="btn-primary">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="data.js"></script>
+    <script src="requirements-parser.js"></script>
+    <script src="ai-assistant.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
